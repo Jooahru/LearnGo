@@ -1,48 +1,18 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-	"net/http"
+	"time"
 )
 
-var errRequestFailed = errors.New("Failed to request From server")
-
 func main() {
-	results := map[string]string{} // 초기화 해줘야 값을 넣을 수 있음
-	// var result = make(map[string]string)표현도 가능
-
-	urls := []string{
-		"https://www.airbnb.com/",
-		"https://www.google.com/",
-		"https://www.reddit.com/",
-		"https://www.google.com/",
-		"https://soundcloud.com/",
-		"https://www.facebook.com/",
-		"https://www.instagram.com/",
-		"https://academy.nomadcoders.co/",
-	}
-
-	for _, url := range urls {
-		result := "OK"
-		err := hitURL(url)
-		if err != nil {
-			result = "FAILED"
-		}
-		results[url] = result
-	}
-	for url, result := range results {
-		fmt.Println(url, result)
-	}
+	go sexyCount("nico") //go를 붙이면 메인 함수가 실행 되는 동안 goroutines가 활성화된다. main함수는 다른 goroutines을 기다려 주지 않는다
+	sexyCount("flynn")
 }
 
-func hitURL(url string) error {
-	fmt.Println("checking:", url)
-	resp, err := http.Get(url)
-	if err != nil || resp.StatusCode >= 400 {
-		fmt.Println(err, resp.StatusCode)
-		return errRequestFailed
+func sexyCount(person string) {
+	for i := 0; i < 10; i++ {
+		fmt.Println(person, "is sexy", i)
+		time.Sleep(time.Second)
 	}
-
-	return nil
 }
