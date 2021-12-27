@@ -6,13 +6,25 @@ import (
 )
 
 func main() {
-	go sexyCount("nico") //go를 붙이면 메인 함수가 실행 되는 동안 goroutines가 활성화된다. main함수는 다른 goroutines을 기다려 주지 않는다
-	sexyCount("flynn")
+	c := make(chan string) // 채널만드는법 c는 변수명
+	people := [5]string{"nico", "flynn", "will", "doge", "rsr"}
+	for _, person := range people {
+		go isSexy(person, c)
+	}
+
+	for i := 0; i < len(people); i++ {
+		fmt.Println(<-c)
+	}
+
+	// // result := <-c
+	// // fmt.Println(result)
+	// resultOne := <-c //<-c 받아오는 갯수보다 많으면 무한대기
+	// fmt.Println("Waiting for messages")
+	// fmt.Println("Received this message:", resultOne) //<-c 채널에서 메세지를 받아오는 표현
+	// fmt.Println("Received this message:", <-c)
 }
 
-func sexyCount(person string) {
-	for i := 0; i < 10; i++ {
-		fmt.Println(person, "is sexy", i)
-		time.Sleep(time.Second)
-	}
+func isSexy(person string, c chan string) { // c chan[채널임을알려주고] string[타입을 지정해줘야한다]
+	time.Sleep(time.Second * 5)
+	c <- person + "is Sexy"
 }
