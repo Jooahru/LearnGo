@@ -6,14 +6,15 @@ import (
 )
 
 func main() {
-	c := make(chan string) // 채널만드는법 c는 변수명
+	c := make(chan string) // 채널만드는법 c는 변수명 chan string [데이터타입]
 	people := [5]string{"nico", "flynn", "will", "doge", "rsr"}
 	for _, person := range people {
 		go isSexy(person, c)
 	}
 
 	for i := 0; i < len(people); i++ {
-		fmt.Println(<-c)
+		fmt.Print("waiting for", i)
+		fmt.Println(<-c) // Receving Message is Bloking Operation
 	}
 
 	// // result := <-c
