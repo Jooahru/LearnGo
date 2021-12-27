@@ -1,64 +1,48 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-
-	"github.com/will/learngo/mydict"
+	"net/http"
 )
 
+var errRequestFailed = errors.New("Failed to request From server")
+
 func main() {
-	// Delete Method 확인
-	dictionary := mydict.Dictionary{}
-	word := "hello"
-	dictionary.Add(word, "First")
-	fmt.Println(dictionary)
-	err := dictionary.Delete("word")
-	fmt.Println(err)
-	fmt.Println(dictionary)
-	dictionary.Delete("word")
-	fmt.Println(err)
-	fmt.Println(dictionary)
+	results := map[string]string{} // 초기화 해줘야 값을 넣을 수 있음
+	// var result = make(map[string]string)표현도 가능
 
-	// Update Method 확인
-	// dictionary := mydict.Dictionary{}
-	// word := "hello"
-	// dictionary.Add(word, "First")
-	// err := dictionary.Update("dsgf", "Second")
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-	// word2, _ := dictionary.Search(word)
-	// fmt.Println(word2)
+	urls := []string{
+		"https://www.airbnb.com/",
+		"https://www.google.com/",
+		"https://www.reddit.com/",
+		"https://www.google.com/",
+		"https://soundcloud.com/",
+		"https://www.facebook.com/",
+		"https://www.instagram.com/",
+		"https://academy.nomadcoders.co/",
+	}
 
-	// Add Method 확인
-	// dictionary := mydict.Dictionary{}
-	// word := "hello"
-	// definition := "Greeting"
-	// err := dictionary.Add(word, definition)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-	// hello, _ := dictionary.Search(word)
-	// fmt.Println(hello)
-	// err2 := dictionary.Add(word, definition)
-	// if err2 != nil {
-	// 	fmt.Println(err2)
-	// }
+	for _, url := range urls {
+		result := "OK"
+		err := hitURL(url)
+		if err != nil {
+			result = "FAILED"
+		}
+		results[url] = result
+	}
+	for url, result := range results {
+		fmt.Println(url, result)
+	}
+}
 
-	// Search Method 확인
-	// dictionary := mydict.Dictionary{"first": "First word"}
-	// definition, err := dictionary.Search("first")
-	// //definition, err := dictionary.Search("second")
-	// if err != nil {
-	// 	fmt.Println(err)
-	// } else {
-	// 	fmt.Println(definition)
-	// }
+func hitURL(url string) error {
+	fmt.Println("checking:", url)
+	resp, err := http.Get(url)
+	if err != nil || resp.StatusCode >= 400 {
+		fmt.Println(err, resp.StatusCode)
+		return errRequestFailed
+	}
 
-	// dictionary :=mydict.Dictionary{"first":"First word"}
-	// fmt.Println(dictionary["first"])
-
-	// dictionary := mydict.Dictionary{}
-	// dictionary["hello"] ="hello"
-	// fmt.Println(dictionary)
+	return nil
 }
