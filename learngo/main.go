@@ -8,11 +8,16 @@ import (
 
 var errRequestFailed = errors.New("Failed to request From server")
 
-func main() {
-	c := make(chan string)
+type resultRequest struct {
+	url    string
+	status string
+}
 
-	//results := map[string]string{} // 초기화 해줘야 값을 넣을 수 있음
-	// var result = make(map[string]string)표현도 가능
+func main() {
+	results := map[string]string{} // 초기화 해줘야 값을 넣을 수 있음
+	c := make(chan resultRequest)
+
+	// var resultRequest = make(map[string]string)표현도 가능
 
 	urls := []string{
 		"https://www.airbnb.com/",
@@ -29,16 +34,23 @@ func main() {
 		go hitURL(url, c)
 	}
 	for i := 0; i < len(urls); i++ {
-		fmt.Print("Checking:",i)
-		fmt.Println(<-c)
+		// fmt.Print("Checking:", i)
+		// fmt.Println(<-c)
+		result := <-c
+		results[result.url] = result.status
+	}
+	fmt.Println(results)
+	for url, status := range results {
+		fmt.Println(url, status)
 	}
 }
 
-func hitURL(url string, c chan string) {
+func hitURL(url string, c chan<- resultRequest) { // chan <-(direction) 표현하면 Send Only
+
 	resp, err := http.Get(url)
+	status := "OK"
 	if err != nil || resp.StatusCode >= 400 {
-		fmt.Println(err, resp.StatusCode)
-		c <- "Failed"
+		status = "FAILED"
 	}
-	c <- "OK"
+	c <- resultRequest{url: url, status: status}
 }
