@@ -1,31 +1,44 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	"time"
+	"net/http"
 )
 
+var errRequestFailed = errors.New("Failed to request From server")
+
 func main() {
-	c := make(chan string) // 채널만드는법 c는 변수명 chan string [데이터타입]
-	people := [5]string{"nico", "flynn", "will", "doge", "rsr"}
-	for _, person := range people {
-		go isSexy(person, c)
+	c := make(chan string)
+
+	//results := map[string]string{} // 초기화 해줘야 값을 넣을 수 있음
+	// var result = make(map[string]string)표현도 가능
+
+	urls := []string{
+		"https://www.airbnb.com/",
+		"https://www.google.com/",
+		"https://www.reddit.com/",
+		"https://www.google.com/",
+		"https://soundcloud.com/",
+		"https://www.facebook.com/",
+		"https://www.instagram.com/",
+		"https://academy.nomadcoders.co/",
 	}
 
-	for i := 0; i < len(people); i++ {
-		fmt.Print("waiting for", i)
-		fmt.Println(<-c) // Receving Message is Bloking Operation
+	for _, url := range urls {
+		go hitURL(url, c)
 	}
-
-	// // result := <-c
-	// // fmt.Println(result)
-	// resultOne := <-c //<-c 받아오는 갯수보다 많으면 무한대기
-	// fmt.Println("Waiting for messages")
-	// fmt.Println("Received this message:", resultOne) //<-c 채널에서 메세지를 받아오는 표현
-	// fmt.Println("Received this message:", <-c)
+	for i := 0; i < len(urls); i++ {
+		fmt.Print("Checking:",i)
+		fmt.Println(<-c)
+	}
 }
 
-func isSexy(person string, c chan string) { // c chan[채널임을알려주고] string[타입을 지정해줘야한다]
-	time.Sleep(time.Second * 5)
-	c <- person + "is Sexy"
+func hitURL(url string, c chan string) {
+	resp, err := http.Get(url)
+	if err != nil || resp.StatusCode >= 400 {
+		fmt.Println(err, resp.StatusCode)
+		c <- "Failed"
+	}
+	c <- "OK"
 }
